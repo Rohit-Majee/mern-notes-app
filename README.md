@@ -4,7 +4,7 @@ Highlights:
 
 - Full-Stack App Built with the MERN Stack (MongoDB, Express, React, Node)
 - Create, Update, and Delete Notes with Title & Description
-- Deployed project demo : https://mern-notes-app-bdrz.onrender.com
+- Deployed project demo : https://mern-notes-app-mcxk.onrender.com
 ---
 ## 🧪 .env Setup
 
