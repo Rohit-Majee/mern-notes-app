@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
-import toast from "react-hot-toast";
+import { useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import api from "../lib/axios";
+import toast from "react-hot-toast";
 import { ArrowLeftIcon, LoaderIcon, Trash2Icon } from "lucide-react";
 
 const NoteDetailPage = () => {
@@ -29,14 +30,6 @@ const NoteDetailPage = () => {
     fetchNote();
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-base-200 flex items-center justify-center">
-        <LoaderIcon className="animate-spin size-10" />
-      </div>
-    );
-  }
-
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this note?")) return;
 
@@ -45,26 +38,38 @@ const NoteDetailPage = () => {
       toast.success("Note deleted");
       navigate("/");
     } catch (error) {
-      console.log("error in deleting the note");
-      toast.error("Failed to delete note ");
+      console.log("Error deleting the note:", error);
+      toast.error("Failed to delete note");
     }
   };
+
   const handleSave = async () => {
     if (!note.title.trim() || !note.content.trim()) {
-      toast.error("Please add a title or a content");
+      toast.error("Please add a title or content");
       return;
     }
 
     setSaving(true);
+
     try {
       await api.put(`/notes/${id}`, note);
-      toast.success("Note deleted");
+      toast.success("Note updated successfully");
       navigate("/");
     } catch (error) {
-      console.log("error in saving the note");
-      toast.error("Failed to update note ");
+      console.log("Error saving the note:", error);
+      toast.error("Failed to update note");
+    } finally {
+      setSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-base-200 flex items-center justify-center">
+        <LoaderIcon className="animate-spin size-10" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-base-200">
@@ -75,59 +80,41 @@ const NoteDetailPage = () => {
               <ArrowLeftIcon className="h-5 w-5" />
               Back to Notes
             </Link>
-            <button
-              onClick={handleDelete}
-              className="btn btn-error btn-outline"
-            >
+            <button onClick={handleDelete} className="btn btn-error btn-outline">
               <Trash2Icon className="h-5 w-5" />
               Delete Note
             </button>
           </div>
 
-          <div className="card bg-base-100 shadow-xl rounded-2xl">
-            <div className="card-body space-y-5">
-              <h2 className="text-2xl font-bold text-primary">
-                ✍️ Make Changes to Note
-              </h2>
-
-              {/* Title Field */}
-              <div className="form-control">
+          <div className="card bg-base-100">
+            <div className="card-body">
+              <div className="form-control mb-4">
                 <label className="label">
-                  <span className="label-text font-medium">Title</span>
+                  <span className="label-text">Title</span>
                 </label>
                 <input
                   type="text"
                   placeholder="Note title"
-                  className="input input-bordered input-primary w-full"
+                  className="input input-bordered"
                   value={note.title}
                   onChange={(e) => setNote({ ...note, title: e.target.value })}
                 />
               </div>
 
-              {/* Content Field */}
-              <div className="form-control">
+              <div className="form-control mb-4">
                 <label className="label">
-                  <span className="label-text font-medium">Content</span>
+                  <span className="label-text">Content</span>
                 </label>
                 <textarea
                   placeholder="Write your note here..."
-                  className="textarea textarea-bordered textarea-primary h-40 resize-none w-full"
+                  className="textarea textarea-bordered h-32"
                   value={note.content}
-                  onChange={(e) =>
-                    setNote({ ...note, content: e.target.value })
-                  }
-                ></textarea>
+                  onChange={(e) => setNote({ ...note, content: e.target.value })}
+                />
               </div>
 
-              {/* Action Button */}
               <div className="card-actions justify-end">
-                <button
-                  className={`btn btn-primary px-6 ${
-                    saving ? "loading btn-disabled" : ""
-                  }`}
-                  onClick={handleSave}
-                  disabled={saving}
-                >
+                <button className="btn btn-primary" disabled={saving} onClick={handleSave}>
                   {saving ? "Saving..." : "Save Changes"}
                 </button>
               </div>
@@ -138,5 +125,4 @@ const NoteDetailPage = () => {
     </div>
   );
 };
-
 export default NoteDetailPage;
